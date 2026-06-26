@@ -11,7 +11,7 @@ from typing import Optional
 from enum import Enum
 
 app = FastAPI(
-    title="bKash CRM Ticket Sorter",
+    title="QueueStorm-Ticket-Sorter",
     description="AI-powered CRM ticket classification service for SUST CSE Carnival 2026 Hackathon",
     version="1.0.0",
 )
