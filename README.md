@@ -153,23 +153,6 @@ Classifies a customer support ticket.
 
 ---
 
-## Deploy to Render
-
-This project includes a `render.yaml` for one-click deployment.
-
-### Steps
-
-1. Push this repo to GitHub (must be **public**)
-2. Go to [render.com](https://render.com) -> **New -> Web Service**
-3. Connect your GitHub account and select this repo
-4. Render auto-detects `render.yaml` -- confirm the settings
-5. Under **Environment Variables**, add:
-   - `ANTHROPIC_API_KEY` -> your key (optional but recommended)
-6. Click **Create Web Service**
-7. Wait ~2 minutes for the build. Your URL will be `https://<service-name>.onrender.com`
-
-> **Free tier note:** Render free services spin down after 15 minutes of inactivity. The first request after a cold start may take ~20 seconds (within the 30s limit).
-
 ### Manual Render Config (if not using `render.yaml`)
 
 | Setting | Value |
@@ -178,43 +161,6 @@ This project includes a `render.yaml` for one-click deployment.
 | Start Command | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
 | Health Check Path | `/health` |
 | Python Version | `3.11` |
-
----
-
-##  Deploy to Other Platforms
-
-### Railway
-
-```bash
-railway login
-railway init
-railway up
-railway variables set ANTHROPIC_API_KEY=sk-ant-...
-```
-
-### Fly.io
-
-```bash
-fly launch
-fly secrets set ANTHROPIC_API_KEY=sk-ant-...
-fly deploy
-```
-
-### Docker
-
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY . .
-RUN pip install -r requirements.txt
-EXPOSE 8000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-```bash
-docker build -t bkash-crm-sorter .
-docker run -p 8000:8000 -e ANTHROPIC_API_KEY=sk-ant-... bkash-crm-sorter
-```
 
 ---
 
