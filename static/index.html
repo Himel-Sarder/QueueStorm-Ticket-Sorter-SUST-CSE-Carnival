@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QueueStorm Ticket Sorter</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --pink: #E2136E;
+      --pink-light: #FF5CA8;
+      --pink-dim: #4A1030;
+      --bg: #0D0D12;
+      --surface: #14141C;
+      --surface2: #1C1C28;
+      --border: #2A2A3C;
+      --text: #F0EFF8;
+      --muted: #8885A0;
+      --green: #22C87A;
+      --amber: #F5A623;
+      --red: #EF4444;
+      --blue: #60A5FA;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: rgba(13, 13, 18, 0.92);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      width: 45px;
+      height: 45px;
+      object-fit: contain;
+    }
+
+    .health-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .health-badge:hover {
+      border-color: var(--pink);
+      color: var(--text);
+    }
+
+    .health-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s;
+    }
+
+    .health-dot.ok {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      flex: 1;
+      max-width: 980px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.5rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      grid-column: 1 / -1;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--pink);
+      margin-bottom: 0.6rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--pink), var(--pink-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      margin-top: 0.65rem;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 500px;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    /* ── INPUT FORM ── */
+    .input-card {
+      grid-column: 1 / -1;
+    }
+
+    .field {
+      margin-bottom: 1rem;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.65rem 0.9rem;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--pink);
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.5;
+    }
+
+    .field select option {
+      background: var(--surface2);
+    }
+
+    .inline-fields {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.8rem;
+      background: linear-gradient(135deg, var(--pink), var(--pink-light));
+      color: white;
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .btn-submit:hover {
+      opacity: 0.9;
+    }
+
+    .btn-submit:active {
+      transform: scale(0.98);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ── RESULTS ── */
+    .result-card {
+      grid-column: 1 / -1;
+      display: none;
+    }
+
+    .result-card.visible {
+      display: block;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .result-ticket-id {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--pink-light);
+      background: var(--pink-dim);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    .human-review-flag {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--red);
+    }
+
+    .human-review-flag.ok {
+      background: rgba(34, 200, 122, 0.1);
+      border-color: rgba(34, 200, 122, 0.25);
+      color: var(--green);
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .result-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+    }
+
+    .result-item-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .result-item-value {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* Severity colors */
+    .sev-low {
+      color: var(--green);
+    }
+
+    .sev-medium {
+      color: var(--blue);
+    }
+
+    .sev-high {
+      color: var(--amber);
+    }
+
+    .sev-critical {
+      color: var(--red);
+    }
+
+    /* Case type pill */
+    .case-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .pill-phishing {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .pill-wrong {
+      background: rgba(245, 166, 35, 0.15);
+      color: var(--amber);
+      border: 1px solid rgba(245, 166, 35, 0.3);
+    }
+
+    .pill-failed {
+      background: rgba(96, 165, 250, 0.12);
+      color: var(--blue);
+      border: 1px solid rgba(96, 165, 250, 0.25);
+    }
+
+    .pill-refund {
+      background: rgba(34, 200, 122, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(34, 200, 122, 0.25);
+    }
+
+    .pill-other {
+      background: rgba(136, 133, 160, 0.1);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .summary-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .summary-box .result-item-label {
+      margin-bottom: 0.5rem;
+    }
+
+    .summary-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .confidence-bar-wrap {
+      margin-top: 0.5rem;
+    }
+
+    .confidence-bar-bg {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 0.4rem;
+    }
+
+    .confidence-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--pink), var(--pink-light));
+      border-radius: 2px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .confidence-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+
+    /* ── SAMPLE CASES ── */
+    .samples-card {
+      grid-column: 1 / -1;
+    }
+
+    .samples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .sample-btn {
+      text-align: left;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      color: var(--text);
+      font-family: var(--sans);
+    }
+
+    .sample-btn:hover {
+      border-color: var(--pink);
+      background: rgba(226, 19, 110, 0.05);
+    }
+
+    .sample-tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--pink);
+      margin-bottom: 0.35rem;
+    }
+
+    .sample-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ── RAW JSON TOGGLE ── */
+    .raw-toggle {
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--sans);
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-top: 0.5rem;
+    }
+
+    .raw-toggle:hover {
+      color: var(--text);
+    }
+
+    .raw-json {
+      display: none;
+      margin-top: 0.75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .raw-json.visible {
+      display: block;
+    }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--pink);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        grid-template-columns: 1fr;
+        padding: 1.25rem 1rem;
+      }
+
+      .inline-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="https://i.postimg.cc/tCZ62tvp/image.png" alt="Logo" class="logo-img">
+      <span>QueueStorm Ticket Sorter</span><br>
+    </div>
+    </div>
+    <div class="health-badge" id="healthBadge" onclick="checkHealth()">
+      <div class="health-dot" id="healthDot"></div>
+      <span id="healthLabel">Check Health</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <div class="hero">
+      <p class="hero-eyebrow">SUST CSE Carnival 2026 ✕ Team Binary Bandits</p>
+      <h1>Classify customer tickets <em>instantly.</em></h1>
+      <p>AI-powered triage for bKash support tickets — detects fraud, routes to the right team, and flags urgent cases
+        for human review.</p>
+    </div>
+
+    <!-- Input Form -->
+    <div class="card input-card">
+      <p class="card-label">Submit Ticket</p>
+      <div class="inline-fields">
+        <div class="field">
+          <label>Ticket ID</label>
+          <input type="text" id="ticketId" value="T-001" placeholder="T-001" />
+        </div>
+        <div class="field">
+          <label>Channel</label>
+          <select id="channel">
+            <option value="">— optional —</option>
+            <option value="app">App</option>
+            <option value="sms">SMS</option>
+            <option value="call_center">Call Center</option>
+            <option value="merchant_portal">Merchant Portal</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Locale</label>
+          <select id="locale">
+            <option value="en">English (en)</option>
+            <option value="bn">Bengali (bn)</option>
+            <option value="mixed">Mixed</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Customer Message</label>
+        <textarea id="message"
+          placeholder="e.g. I sent 5000 taka to a wrong number this morning, please help me get it back"></textarea>
+      </div>
+      <button class="btn-submit" id="submitBtn" onclick="submitTicket()">
+        Classify Ticket
+      </button>
+    </div>
+
+    <!-- Result -->
+    <div class="card result-card" id="resultCard">
+      <div class="result-header">
+        <p class="card-label" style="margin:0">Classification Result</p>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <span class="result-ticket-id" id="resultTicketId">T-001</span>
+          <div class="human-review-flag" id="reviewFlag">✓ Auto-resolved</div>
+        </div>
+      </div>
+
+      <div class="result-grid">
+        <div class="result-item">
+          <div class="result-item-label">Case Type</div>
+          <div id="caseTypeDisplay"></div>
+        </div>
+        <div class="result-item">
+          <div class="result-item-label">Severity</div>
+          <div class="result-item-value" id="severityDisplay"></div>
+        </div>
+        <div class="result-item">
+          <div class="result-item-label">Routed To</div>
+          <div class="result-item-value" id="deptDisplay"></div>
+        </div>
+        <div class="result-item">
+          <div class="result-item-label">Confidence</div>
+          <div class="confidence-bar-wrap">
+            <div class="confidence-bar-bg">
+              <div class="confidence-bar-fill" id="confBar" style="width:0%"></div>
+            </div>
+            <div class="confidence-label">
+              <span>0%</span>
+              <span id="confValue">—</span>
+              <span>100%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-box">
+        <div class="result-item-label">Agent Summary</div>
+        <p class="summary-text" id="summaryText"></p>
+      </div>
+
+      <button class="raw-toggle" onclick="toggleRaw()">
+        <span id="rawToggleLabel">▶ View raw JSON</span>
+      </button>
+      <div class="raw-json" id="rawJson"></div>
+    </div>
+
+    <!-- Sample Cases -->
+    <div class="card samples-card">
+      <p class="card-label">Try a Sample Case</p>
+      <div class="samples-grid" id="samplesGrid"></div>
+    </div>
+  </main>
+
+  <footer>
+    Built for <a href="#">SUST CSE Carnival 2026</a> · bKash CRM Hackathon ·
+    <a href="/docs" target="_blank">API Docs</a> ·
+    <a href="/health" target="_blank">/health</a>
+  </footer>
+
+  <script>
+    const SAMPLES = [
+      { tag: "Wrong Transfer", text: "I sent 3000 taka to a wrong number, please help me recover it." },
+      { tag: "Payment Failed", text: "My payment failed but the balance was deducted from my account." },
+      { tag: "Phishing", text: "Someone called me claiming to be bKash and asked for my OTP. Is that real?" },
+      { tag: "Refund Request", text: "Please refund my last transaction, I changed my mind about the purchase." },
+      { tag: "App Issue", text: "The bKash app crashed when I tried to open my transaction history." },
+      { tag: "Merchant Dispute", text: "I paid a merchant 1200 taka via bKash but they are saying the payment never arrived. My balance was deducted." }
+    ];
+
+    const grid = document.getElementById('samplesGrid');
+    SAMPLES.forEach((s, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'sample-btn';
+      btn.innerHTML = `<div class="sample-tag">${s.tag}</div><div class="sample-text">${s.text}</div>`;
+      btn.onclick = () => {
+        document.getElementById('message').value = s.text;
+        document.getElementById('ticketId').value = `T-00${i + 1}`;
+      };
+      grid.appendChild(btn);
+    });
+
+    async function checkHealth() {
+      const dot = document.getElementById('healthDot');
+      const label = document.getElementById('healthLabel');
+      label.textContent = 'Checking…';
+      try {
+        const r = await fetch('/health');
+        const d = await r.json();
+        dot.className = 'health-dot ok';
+        label.textContent = d.ai_enabled ? 'AI Online' : 'Rules Online';
+      } catch {
+        dot.className = 'health-dot';
+        label.textContent = 'Offline';
+      }
+    }
+
+    function toggleRaw() {
+      const el = document.getElementById('rawJson');
+      const lbl = document.getElementById('rawToggleLabel');
+      el.classList.toggle('visible');
+      lbl.textContent = el.classList.contains('visible') ? '▼ Hide raw JSON' : '▶ View raw JSON';
+    }
+
+    const CASE_PILLS = {
+      wrong_transfer: { cls: 'pill-wrong', icon: '↗', label: 'Wrong Transfer' },
+      payment_failed: { cls: 'pill-failed', icon: '✗', label: 'Payment Failed' },
+      refund_request: { cls: 'pill-refund', icon: '↺', label: 'Refund Request' },
+      phishing_or_social_engineering: { cls: 'pill-phishing', icon: '⚠', label: 'Phishing / Social Eng.' },
+      other: { cls: 'pill-other', icon: '○', label: 'Other' },
+    };
+
+    const SEV_CLASS = { low: 'sev-low', medium: 'sev-medium', high: 'sev-high', critical: 'sev-critical' };
+
+    const DEPT_LABELS = {
+      customer_support: 'Customer Support',
+      dispute_resolution: 'Dispute Resolution',
+      payments_ops: 'Payments Ops',
+      fraud_risk: 'Fraud & Risk',
+    };
+
+    async function submitTicket() {
+      const btn = document.getElementById('submitBtn');
+      const message = document.getElementById('message').value.trim();
+      const ticketId = document.getElementById('ticketId').value.trim() || 'T-001';
+
+      if (!message) {
+        document.getElementById('message').focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div> Classifying…';
+
+      const body = {
+        ticket_id: ticketId,
+        message,
+        channel: document.getElementById('channel').value || undefined,
+        locale: document.getElementById('locale').value || undefined,
+      };
+
+      try {
+        const res = await fetch('/sort-ticket', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        renderResult(data);
+      } catch (e) {
+        alert('Error calling /sort-ticket. Check console.');
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Classify Ticket';
+      }
+    }
+
+    function renderResult(data) {
+      const card = document.getElementById('resultCard');
+      card.classList.add('visible');
+
+      // Ticket ID
+      document.getElementById('resultTicketId').textContent = data.ticket_id;
+
+      // Human review flag
+      const flag = document.getElementById('reviewFlag');
+      if (data.human_review_required) {
+        flag.className = 'human-review-flag';
+        flag.textContent = '⚠ Human Review Required';
+      } else {
+        flag.className = 'human-review-flag ok';
+        flag.textContent = '✓ Auto-resolved';
+      }
+
+      // Case type
+      const pill = CASE_PILLS[data.case_type] || CASE_PILLS.other;
+      document.getElementById('caseTypeDisplay').innerHTML =
+        `<span class="case-pill ${pill.cls}">${pill.icon} ${pill.label}</span>`;
+
+      // Severity
+      const sevEl = document.getElementById('severityDisplay');
+      sevEl.textContent = data.severity.toUpperCase();
+      sevEl.className = `result-item-value ${SEV_CLASS[data.severity] || ''}`;
+
+      // Department
+      document.getElementById('deptDisplay').textContent =
+        DEPT_LABELS[data.department] || data.department;
+
+      // Confidence
+      const pct = Math.round((data.confidence || 0) * 100);
+      document.getElementById('confBar').style.width = pct + '%';
+      document.getElementById('confValue').textContent = pct + '%';
+
+      // Summary
+      document.getElementById('summaryText').textContent = data.agent_summary;
+
+      // Raw JSON
+      document.getElementById('rawJson').textContent = JSON.stringify(data, null, 2);
+      document.getElementById('rawJson').classList.remove('visible');
+      document.getElementById('rawToggleLabel').textContent = '▶ View raw JSON';
+
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Auto health check on load
+    setTimeout(checkHealth, 800);
+  </script>
+</body>
+
+</html>
