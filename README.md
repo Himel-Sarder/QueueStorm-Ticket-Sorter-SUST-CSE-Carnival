@@ -208,25 +208,7 @@ bkash-crm-sorter/
 ---
 
 ##  Architecture
-
-```
-POST /sort-ticket
-      |
-      v
- TicketRequest (Pydantic validation)
-      |
-      +-- ANTHROPIC_API_KEY set?
-      |       +-- YES -> classify_with_claude() -> Claude Sonnet 4.6
-      |       +-- NO  -> fallback_classify() [keyword rules]
-      |
-      v
- Safety guards
-   - human_review_required forced true for phishing / critical
-   - agent_summary scrubbed for PIN/OTP keywords
-      |
-      v
- TicketResponse -> JSON
-```
+<img width="1152" height="1365" alt="image" src="https://github.com/user-attachments/assets/b2d7e699-889d-47bb-9aca-4b63ac95bc38" />
 
 ---
 
