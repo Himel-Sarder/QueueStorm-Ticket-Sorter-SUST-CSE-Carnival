@@ -5,6 +5,7 @@
 An AI-powered CRM ticket classification microservice built with **FastAPI**. Reads a customer support message and instantly classifies it by case type, severity, responsible department, and generates an agent-ready summary -- with automatic escalation flags for phishing and critical cases.
 
 ---
+## Live Link (Render - Wait 15 sec) : https://queuestorm-ticket-sorter-sust-cse.onrender.com/
 
 ## Features
 
