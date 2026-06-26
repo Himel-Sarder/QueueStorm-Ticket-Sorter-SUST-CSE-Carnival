@@ -5,7 +5,14 @@
 An AI-powered CRM ticket classification microservice built with **FastAPI**. Reads a customer support message and instantly classifies it by case type, severity, responsible department, and generates an agent-ready summary -- with automatic escalation flags for phishing and critical cases.
 
 ---
-## Live Link (Render - Wait 15 sec) : https://queuestorm-ticket-sorter-sust-cse.onrender.com/
+### Live Link (Render - Wait 15 sec) : https://queuestorm-ticket-sorter-sust-cse.onrender.com/
+
+## Screenshorts
+<img width="1882" height="906" alt="image" src="https://github.com/user-attachments/assets/f16128e5-396c-4c12-847f-4f9f2738945d" />
+<img width="1883" height="903" alt="image" src="https://github.com/user-attachments/assets/e55d418a-2558-4a4f-b3e0-3f774a519649" />
+
+### Docs of Fast API: https://queuestorm-ticket-sorter-sust-cse.onrender.com/docs  
+<img width="1763" height="2646" alt="image" src="https://github.com/user-attachments/assets/7ba356ae-ea41-49c5-93c9-48c095f60b03" />
 
 ## Features
 
@@ -294,5 +301,6 @@ POST /sort-ticket
 ## Team
 
 - **Team Name:** *Binary Bandits*
+- **Developer** : *Himel Sarder - info.himelcse@gmail.com - CSE, JSTU*
 - **Deployment Platform:** Render
 - **LLM Used:** Yes -- Claude (`claude-sonnet-4-6`) via Anthropic API
